@@ -1,6 +1,7 @@
 *.env
 .env.gcp.yaml
 redis-volume/
+mongo-data/
 backend/ui
 
 # Operating System generated files
