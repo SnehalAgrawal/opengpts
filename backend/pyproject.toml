@@ -42,6 +42,7 @@ httpx = { version = "0.25.2", extras = ["socks"] }
 unstructured = {extras = ["doc", "docx"], version = "^0.12.5"}
 bcrypt = "^4.1.2"
 pymongo = "^4.6.2"
+PyJWT = "^2.1.0"
 
 [tool.poetry.group.dev.dependencies]
 uvicorn = "^0.23.2"
