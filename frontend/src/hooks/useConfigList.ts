@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useReducer, useState } from "react";
 import orderBy from "lodash/orderBy";
 import { v4 as uuidv4 } from "uuid";
+import { useFetch } from "./useFetch";
+import { useNavigate } from "react-router-dom";
+import { LOCAL_STORAGE_NAME } from "../constants";
 
 export interface Config {
   assistant_id: string;
@@ -26,6 +29,7 @@ export interface ConfigListProps {
     isPublic: boolean,
   ) => Promise<void>;
   enterConfig: (id: string | null) => void;
+  handleLogout: () => void;
 }
 
 function configsReducer(
@@ -46,20 +50,22 @@ function configsReducer(
 export function useConfigList(): ConfigListProps {
   const [configs, setConfigs] = useReducer(configsReducer, null);
   const [current, setCurrent] = useState<string | null>(null);
+  const fetchWithToken = useFetch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchConfigs() {
       const searchParams = new URLSearchParams(window.location.search);
       const shared_id = searchParams.get("shared_id");
       const [myConfigs, publicConfigs] = await Promise.all([
-        fetch("/assistants/", {
+        fetchWithToken("/assistants/", {
           headers: {
             Accept: "application/json",
           },
         })
           .then((r) => r.json())
           .then((li) => li.map((c: Config) => ({ ...c, mine: true }))),
-        fetch(
+        fetchWithToken(
           "/assistants/public/" + (shared_id ? `?shared_id=${shared_id}` : ""),
           {
             headers: {
@@ -99,7 +105,7 @@ export function useConfigList(): ConfigListProps {
         JSON.stringify({ configurable: { assistant_id } }),
       );
       const [saved] = await Promise.all([
-        fetch(`/assistants/${assistant_id}`, {
+        fetchWithToken(`/assistants/${assistant_id}`, {
           method: "PUT",
           body: JSON.stringify({ name, config, public: isPublic }),
           headers: {
@@ -108,7 +114,7 @@ export function useConfigList(): ConfigListProps {
           },
         }).then((r) => r.json()),
         files.length
-          ? fetch(`/ingest`, {
+          ? fetchWithToken(`/ingest`, {
               method: "POST",
               body: formData,
             })
@@ -120,10 +126,16 @@ export function useConfigList(): ConfigListProps {
     [enterConfig],
   );
 
+  const handleLogout = () => {
+    localStorage.removeItem(LOCAL_STORAGE_NAME);
+    navigate("/login");
+  };
+
   return {
     configs,
     currentConfig: configs?.find((c) => c.assistant_id === current) || null,
     saveConfig,
     enterConfig,
+    handleLogout,
   };
 }

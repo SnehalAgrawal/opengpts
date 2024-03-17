@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Message } from "./useChatList";
 import { StreamState } from "./useStreamState";
+import { FetchWithToken, useFetch } from "./useFetch";
 
-async function getMessages(threadId: string) {
-  const { messages, resumeable } = await fetch(
+async function getMessages(fetchWithToken: FetchWithToken, threadId: string) {
+  const { messages, resumeable } = await fetchWithToken(
     `/threads/${threadId}/messages`,
     {
       headers: {
@@ -21,11 +22,15 @@ export function useChatMessages(
 ): { messages: Message[] | null; resumeable: boolean } {
   const [messages, setMessages] = useState<Message[] | null>(null);
   const [resumeable, setResumeable] = useState(false);
+  const fetchWithToken = useFetch();
 
   useEffect(() => {
     async function fetchMessages() {
       if (threadId) {
-        const { messages, resumeable } = await getMessages(threadId);
+        const { messages, resumeable } = await getMessages(
+          fetchWithToken,
+          threadId,
+        );
         setMessages(messages);
         setResumeable(resumeable);
       }
@@ -41,7 +46,10 @@ export function useChatMessages(
   useEffect(() => {
     async function fetchMessages() {
       if (threadId) {
-        const { messages, resumeable } = await getMessages(threadId);
+        const { messages, resumeable } = await getMessages(
+          fetchWithToken,
+          threadId,
+        );
         setMessages(messages);
         setResumeable(resumeable);
         stopStream?.(true);

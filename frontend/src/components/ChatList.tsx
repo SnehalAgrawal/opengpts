@@ -10,9 +10,10 @@ export function ChatList(props: {
   enterChat: ChatListProps["enterChat"];
   currentConfig: ConfigListProps["currentConfig"];
   enterConfig: ConfigListProps["enterConfig"];
+  handleLogout: ConfigListProps["handleLogout"];
 }) {
   return (
-    <>
+    <div className="flex flex-col h-[calc(100vh-40px)]">
       <div
         onClick={() => props.enterChat(null)}
         className={cn(
@@ -91,6 +92,15 @@ export function ChatList(props: {
           </li>
         )}
       </ul>
-    </>
+
+      <div className="mt-auto">
+        <button
+          onClick={props.handleLogout}
+          className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
   );
 }

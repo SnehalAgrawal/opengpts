@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useReducer, useState } from "react";
 import orderBy from "lodash/orderBy";
 import { v4 as uuidv4 } from "uuid";
+import { useFetch } from "./useFetch";
 
 export interface Message {
   type: string;
@@ -61,10 +62,11 @@ function chatsReducer(
 export function useChatList(): ChatListProps {
   const [chats, setChats] = useReducer(chatsReducer, null);
   const [current, setCurrent] = useState<string | null>(null);
+  const fetchWithToken = useFetch();
 
   useEffect(() => {
     async function fetchChats() {
-      const chats = await fetch("/threads/", {
+      const chats = await fetchWithToken("/threads/", {
         headers: {
           Accept: "application/json",
         },
@@ -81,7 +83,7 @@ export function useChatList(): ChatListProps {
       assistant_id: string,
       thread_id: string = uuidv4(),
     ) => {
-      const saved = await fetch(`/threads/${thread_id}`, {
+      const saved = await fetchWithToken(`/threads/${thread_id}`, {
         method: "PUT",
         body: JSON.stringify({ assistant_id, name }),
         headers: {
