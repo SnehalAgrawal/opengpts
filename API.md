@@ -7,18 +7,83 @@ For full API documentation, see [localhost:8100/docs](localhost:8100/docs) after
 
 If you want to see the API docs before deployment, check out the [hosted docs here](https://opengpts-example-vz4y4ooboq-uc.a.run.app/docs).
 
+## Authentication
+
+This application is secured and can be accessed by registering into it, for the authentication and authorization here are the APIs
+
+### Register
+
+To register in the application you can use this API, all the fields are required
+
+```python
+import requests
+requests.post(
+    'http://127.0.0.1:8100/auth/register',
+    json={
+        "firstname": "firstname",
+        "lastname": "lastname",
+        "username": "myusername",
+        "password": "mypassword"
+    },
+    headers={"content-type": "application/json"}
+).content
+```
+
+This should return something like this:
+* If user successfully registered
+
+```shell
+b'{"message":"User registered successfully","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im15dXNlcm5hbWUiLCJleHAiOjE3MTA2NzU2NDN9.E2DvYbtV8cgIYrWxrk0Gc4xjsDDcC4xOQrJEahbNrEU"}'
+```
+* If username is not usnique then
+```shell
+b'{"detail":{"message":"Username already exists"}}'
+```
+
+### Login
+
+To authenticate yourself and to get the JWL token you can use below API, all the fields are required
+
+```python
+import requests
+requests.post(
+    'http://127.0.0.1:8100/auth/login',
+    json={
+        "username": "myusername",
+        "password": "mypassword"
+    },
+    headers={"content-type": "application/json"}
+).content
+```
+
+This should return something like this:
+* In case of success
+
+```shell
+b'{"message":"Login successful","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im15dXNlcm5hbWUiLCJleHAiOjE3MTA2NzU2NDN9.E2DvYbtV8cgIYrWxrk0Gc4xjsDDcC4xOQrJEahbNrEU"}'
+```
+* else
+```shell
+b'{"message":"Invalid username or password"}'
+```
+
 ## Create an Assistant
 
-First, let's use the API to create an assistant. 
+Let's use the API to create an assistant. 
 This should look something like:
 
 ```python
 import requests
-requests.post('http://127.0.0.1:8100/assistants', json={
-  "name": "bar",
-  "config": {"configurable": {}},
-  "public": True
-}, cookies= {"opengpts_user_id": "foo"}).content
+requests.post(
+    'http://127.0.0.1:8100/assistants',
+    json={
+        "name": "bar",
+        "config": {"configurable": {}},
+        "public": True
+    },
+    cookies= {"opengpts_user_id": "foo"},
+    headers={"Authorization": "Bearer <auth token>"}
+).content
 ```
 This is creating an assistant with name `"bar"`, with default configuration, that is public, and is associated with user `"foo"` (we are using cookies as a mock auth method).
 
@@ -59,7 +124,8 @@ import requests
 requests.post('http://127.0.0.1:8100/threads', cookies= {"opengpts_user_id": "foo"}, json={
     "name": "hi",
     "assistant_id": "9c7d7e6e-654b-4eaa-b160-f19f922fc63b"
-}).content
+},
+headers={"Authorization": "Bearer <auth token>"}).content
 ```
 
 This is creating a thread, named `"hi"`, with the assistant ID that we just created, for the same user.
@@ -78,7 +144,8 @@ We can check the thread, and see that it is currently empty:
 import requests
 requests.get(
     'http://127.0.0.1:8100/threads/231dc7f3-33ee-4040-98fe-27f6e2aa8b2b/messages', 
-    cookies= {"opengpts_user_id": "foo"}
+    cookies= {"opengpts_user_id": "foo"},
+    headers={"Authorization": "Bearer <auth token>"}
 ).content
 ```
 ```shell
@@ -96,7 +163,8 @@ requests.post(
             "content": "hi! my name is bob",
             "type": "human",
         }]
-    }
+    },
+    headers={"Authorization": "Bearer <auth token>"}
 ).content
 ```
 
@@ -106,7 +174,8 @@ If we now run the command to see the thread, we can see that there is now a mess
 import requests
 requests.get(
     'http://127.0.0.1:8100/threads/231dc7f3-33ee-4040-98fe-27f6e2aa8b2b/messages', 
-    cookies= {"opengpts_user_id": "foo"}
+    cookies= {"opengpts_user_id": "foo"},
+    headers={"Authorization": "Bearer <auth token>"}
 ).content
 ```
 ```shell
@@ -119,13 +188,18 @@ We can now run the assistant on that thread.
 
 ```python
 import requests
-requests.post('http://127.0.0.1:8100/runs', cookies= {"opengpts_user_id": "foo"}, json={
-    "assistant_id": "9c7d7e6e-654b-4eaa-b160-f19f922fc63b",
-    "thread_id": "231dc7f3-33ee-4040-98fe-27f6e2aa8b2b",
-    "input": {
-        "messages": []
-    }
-}).content
+requests.post(
+    'http://127.0.0.1:8100/runs',
+    cookies= {"opengpts_user_id": "foo"},
+    json={
+        "assistant_id": "9c7d7e6e-654b-4eaa-b160-f19f922fc63b",
+        "thread_id": "231dc7f3-33ee-4040-98fe-27f6e2aa8b2b",
+        "input": {
+            "messages": []
+        }
+    },
+    headers={"Authorization": "Bearer <auth token>"}
+).content
 ```
 This runs the thread with the same id that we just created, with the assistant that we created, with no additional input messages (see below for how to add input messages).
 
@@ -133,7 +207,10 @@ If we now check the thread, we can see (after a bit) that there is a message fro
 
 ```python
 import requests
-requests.get('http://127.0.0.1:8100/threads/231dc7f3-33ee-4040-98fe-27f6e2aa8b2b/messages', cookies= {"opengpts_user_id": "foo"}).content
+requests.get(
+    'http://127.0.0.1:8100/threads/231dc7f3-33ee-4040-98fe-27f6e2aa8b2b/messages', cookies= {"opengpts_user_id": "foo"},
+    headers={"Authorization": "Bearer <auth token>"}
+).content
 ```
 ```shell
 b'{"messages":[{"content":"hi! my name is bob","additional_kwargs":{},"type":"human","example":false},{"content":"Hello, Bob! How can I assist you today?","additional_kwargs":{"agent":{"return_values":{"output":"Hello, Bob! How can I assist you today?"},"log":"Hello, Bob! How can I assist you today?","type":"AgentFinish"}},"type":"ai","example":false}]}'
@@ -146,24 +223,33 @@ Continuing the example above, we can run:
 
 ```python
 import requests
-requests.post('http://127.0.0.1:8100/runs', cookies= {"opengpts_user_id": "foo"}, json={
-    "assistant_id": "9c7d7e6e-654b-4eaa-b160-f19f922fc63b",
-    "thread_id": "231dc7f3-33ee-4040-98fe-27f6e2aa8b2b",
-    "input": {
-        "messages": [{
-            "content": "whats my name? respond in spanish",
-            "type": "human",
+requests.post(
+    'http://127.0.0.1:8100/runs',
+    cookies= {"opengpts_user_id": "foo"},
+    json={
+        "assistant_id": "9c7d7e6e-654b-4eaa-b160-f19f922fc63b",
+        "thread_id": "231dc7f3-33ee-4040-98fe-27f6e2aa8b2b",
+        "input": {
+            "messages": [{
+                "content": "whats my name? respond in spanish",
+                "type": "human",
+            }
+            ]
         }
-        ]
-    }
-}).content
+    },
+    headers={"Authorization": "Bearer <auth token>"}
+).content
 ```
 
 Then, if we call the threads endpoint after a bit we can see the human message - as well as an AI message - get added to the thread.
 
 ```python
 import requests
-requests.get('http://127.0.0.1:8100/threads/231dc7f3-33ee-4040-98fe-27f6e2aa8b2b/messages', cookies= {"opengpts_user_id": "foo"}).content
+requests.get(
+    'http://127.0.0.1:8100/threads/231dc7f3-33ee-4040-98fe-27f6e2aa8b2b/messages', 
+    cookies= {"opengpts_user_id": "foo"},
+    headers={"Authorization": "Bearer <auth token>"}
+).content
 ```
 
 ```shell
@@ -180,16 +266,19 @@ import requests
 import json
 response = requests.post(
     'http://127.0.0.1:8100/runs/stream', 
-    cookies= {"opengpts_user_id": "foo"}, json={
-    "assistant_id": "9c7d7e6e-654b-4eaa-b160-f19f922fc63b",
-    "thread_id": "231dc7f3-33ee-4040-98fe-27f6e2aa8b2b",
-    "input": {
-        "messages": [{
-            "content": "have a good day!",
-            "type": "human",
-        }]
-    }
-})
+    cookies= {"opengpts_user_id": "foo"},
+    json={
+        "assistant_id": "9c7d7e6e-654b-4eaa-b160-f19f922fc63b",
+        "thread_id": "231dc7f3-33ee-4040-98fe-27f6e2aa8b2b",
+        "input": {
+            "messages": [{
+                "content": "have a good day!",
+                "type": "human",
+            }]
+        }
+    },
+    headers={"Authorization": "Bearer <auth token>"}
+)
 res = []
 if response.status_code == 200:
     # Iterate over the response

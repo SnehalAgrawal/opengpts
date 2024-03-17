@@ -46,6 +46,20 @@ cd backend
 poetry install
 ```
 
+**Set up authentication**
+
+The backend uses Mongo for saving user related details. In order to you use this, you need a `MONGO_CONNECTION_URL` variable.
+
+```shell
+export MONGO_CONNECTION_URL=...
+```
+
+Also for the authentication we are creating JWT for which you need to define `TOKEN_SECRET_KEY` variable. this can be random accordingto your choice
+
+```shell
+export TOKEN_SECRET_KEY=...
+```
+
 **Set up persistence layer**
 
 The backend by default uses Redis for saving agent configurations and chat message history.
