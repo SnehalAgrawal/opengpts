@@ -138,7 +138,10 @@ This project supports a Docker-based setup, streamlining installation and execut
    cd opengpts
    ```
 
-2. **Run with Docker Compose:**  
+2. **Create .env:**  
+   Please create one .env file from .env.example file.
+   Note: If you are using docker-compose you can keep the .env.example as it is as we need .env for the DockerFile to run.
+4. **Run with Docker Compose:**  
    In the root directory of the project, execute:
 
    ```
@@ -147,10 +150,10 @@ This project supports a Docker-based setup, streamlining installation and execut
 
    This command builds the Docker images for the frontend and backend from their respective Dockerfiles and starts all necessary services, including Redis.
 
-3. **Access the Application:**  
+5. **Access the Application:**  
    With the services running, access the frontend at [http://localhost:5173](http://localhost:5173), substituting `5173` with the designated port number.
 
-4. **Rebuilding After Changes:**  
+6. **Rebuilding After Changes:**  
    If you make changes to either the frontend or backend, rebuild the Docker images to reflect these changes. Run:
    ```
    docker compose up --build
