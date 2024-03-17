@@ -36,3 +36,5 @@ export const DROPZONE_CONFIG = {
   },
   maxSize: 10_000_000, // Up to 10 MB file size.
 };
+
+export const LOCAL_STORAGE_NAME = "prutoken";

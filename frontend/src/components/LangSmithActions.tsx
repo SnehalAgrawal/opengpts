@@ -5,15 +5,17 @@ import {
   CheckIcon,
 } from "@heroicons/react/24/outline";
 import { useState } from "react";
+import { useFetch } from "../hooks/useFetch";
 
 export function LangSmithActions(props: { runId: string }) {
   const [state, setState] = useState<{
     score: number;
     inflight: boolean;
   } | null>(null);
+  const fetchWithToken = useFetch();
   const sendFeedback = async (score: number) => {
     setState({ score, inflight: true });
-    await fetch(`/runs/feedback`, {
+    await fetchWithToken(`/runs/feedback`, {
       method: "POST",
       body: JSON.stringify({
         run_id: props.runId,

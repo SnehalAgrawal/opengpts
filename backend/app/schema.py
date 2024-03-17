@@ -1,7 +1,8 @@
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastapi import Cookie
+from pydantic import BaseModel, Field
 from typing_extensions import TypedDict
 
 
@@ -55,3 +56,45 @@ OpengptsUserId = Annotated[
         )
     ),
 ]
+
+
+class User(BaseModel):
+    """User model."""
+
+    _id: Optional[str] = Field(None, alias="id")
+    """The ID of the user."""
+
+    firstname: str
+    """First name of the user."""
+
+    lastname: str
+    """Last name of the user."""
+
+    username: str
+    """Username of the user."""
+
+    password: str
+    """Password of the user."""
+
+    class Config:
+        allow_population_by_field_name = True
+        schema_extra = {
+            "example": {
+                "firstname": "John",
+                "lastname": "Doe",
+                "username": "johndoe",
+                "password": "s3cret",
+            }
+        }
+
+
+class UserRegistration(BaseModel):
+    firstname: str
+    lastname: str
+    username: str
+    password: str
+
+
+class UserLogin(BaseModel):
+    username: str
+    password: str

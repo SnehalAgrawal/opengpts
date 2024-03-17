@@ -3,7 +3,7 @@ import json
 from typing import Optional, Sequence
 
 import langsmith.client
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, Depends
 from fastapi.exceptions import RequestValidationError
 from langchain.pydantic_v1 import ValidationError
 from langchain_core.messages import AnyMessage
@@ -15,11 +15,12 @@ from pydantic import BaseModel, Field
 from sse_starlette import EventSourceResponse
 
 from app.agent import agent
+from app.api.token_management import verify_token
 from app.schema import OpengptsUserId
 from app.storage import get_assistant, public_user_id
 from app.stream import astream_messages, to_sse
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(verify_token)])
 
 
 class CreateRunPayload(BaseModel):
