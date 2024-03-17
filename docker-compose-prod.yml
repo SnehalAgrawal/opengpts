@@ -8,6 +8,16 @@ services:
       - "6379:6379"
     volumes:
       - ./redis-volume:/data
+  mongo:
+    container_name: opengpts-mongo
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "mongodb"
+      MONGO_INITDB_ROOT_PASSWORD: "mongodb"
   backend:
     container_name: opengpts-backend
     image: docker.io/langchain/open-gpts:latest
@@ -15,7 +25,10 @@ services:
       - "8100:8000" # Backend is accessible on localhost:8100 and serves the frontend
     depends_on:
       - redis
+      - mongo
     env_file:
       - .env
     environment:
       REDIS_URL: "redis://opengpts-redis:6379"
+      MONGO_CONNECTION_URL: "mongodb://mongodb:mongodb@opengpts-mongo:27017"
+      TOKEN_SECRET_KEY: "s3cret"

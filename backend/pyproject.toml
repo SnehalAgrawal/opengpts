@@ -40,6 +40,9 @@ fireworks-ai = "^0.11.2"
 anthropic = "^0.13.0"
 httpx = { version = "0.25.2", extras = ["socks"] }
 unstructured = {extras = ["doc", "docx"], version = "^0.12.5"}
+bcrypt = "^4.1.2"
+pymongo = "^4.6.2"
+PyJWT = "^2.1.0"
 
 [tool.poetry.group.dev.dependencies]
 uvicorn = "^0.23.2"
@@ -57,8 +60,6 @@ pytest-mock = "^3.11.1"
 pytest-socket = "^0.6.0"
 pytest-watch = "^4.2.0"
 pytest-timeout = "^2.2.0"
-bcrypt = "^4.1.2"
-pymongo = "^4.6.2"
 
 [tool.coverage.run]
 omit = [

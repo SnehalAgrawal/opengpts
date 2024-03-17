@@ -16,10 +16,13 @@ db_client = get_mongo_client()
 
 @router.post("/register")
 async def register(user_data: UserRegistration) -> Dict:
+    """Register User"""
+
     # Check if the username already exists
     if db_client.users.find_one({"username": user_data.username}):
         raise HTTPException(status_code=400, detail={'message': "Username already exists"})
 
+    # encrypt password for the security
     hashed_password = bcrypt.hashpw(user_data.password.encode('utf-8'), bcrypt.gensalt())
 
     db_client.users.insert_one({
@@ -40,14 +43,20 @@ async def register(user_data: UserRegistration) -> Dict:
 
 @router.post("/login")
 async def login(login_data: UserLogin) -> Dict:
+    """Authenticate User"""
+
     username: str = login_data.username
     password: bytes = str(login_data.password).encode('utf-8')
 
+    # Check if the username exists
     user: User = db_client.users.find_one({'username': username})
 
+    # Check if the password matches
     if user and bcrypt.checkpw(password, user['password']):
+
         # Create a token to return to the user
         token = create_token(username)
+
         return {
             'message': 'Login successful',
             'token': token
